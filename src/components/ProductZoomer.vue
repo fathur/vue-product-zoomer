@@ -1,5 +1,5 @@
 <template>
-  <div :class="options.namespace + '-base-container scroller-at-' + options.scroller_position">
+  <div :class="options.namespace + '-base-container scroller-at-' + options.scrollerPosition">
     <img
       :src="previewImg.url"
       :data-zoom="previewLargeImg.url"
@@ -9,30 +9,30 @@
     <div class="thumb-list">
       <img
         @click="moveThumbs('backward')"
-        :src="scroller_icon_first"
+        :src="scrollerIconFirst"
         class="zoomer-control responsive-image"
         alt="move thumb icon"
       >
       <img
         @mouseover="chooseThumb(thumb, $event)"
         draggable="false"
-        v-show="key < options.scroll_items"
+        v-show="key < options.scrollItems"
         :key="key"
         :src="thumb.url"
         @click="chooseThumb(thumb, $event)"
         v-for="(thumb, key) in thumbs"
         class="responsive-image"
-        v-bind:style="{'boxShadow' : thumb.id === choosedThumb.id ? '0px 0px 0px 2px ' + options.choosed_thumb_border_color : ''}"
+        v-bind:style="{'boxShadow' : thumb.id === choosedThumb.id ? '0px 0px 0px 2px ' + options.choosedThumbBorderColor : ''}"
         :class="{'choosed-thumb': thumb.id === choosedThumb.id}"
       >
       <img
         @click="moveThumbs('forward')"
-        :src="scroller_icon_second"
+        :src="scrollerIconSecond"
         class="zoomer-control responsive-image"
         alt="move thumb icon"
       >
     </div>
-    <div :id="pane_container_id" class="pane-container"></div>
+    <div :id="paneContainerId" class="pane-container"></div>
   </div>
 </template>
 
@@ -94,8 +94,8 @@ export default {
       previewImg: {},
       previewLargeImg: {},
       thumbs: [],
-      normal_size: [],
-      large_size: [],
+      normalSize: [],
+      largeSize: [],
       choosedThumb: {},
       drift: null,
       options: {
@@ -103,51 +103,51 @@ export default {
         pane: "container",
         hoverDelay: 300,
         namespace: "container-zoomer",
-        move_by_click: true,
-        scroll_items: 4,
-        choosed_thumb_border_color: "#ff3d00",
-        scroller_button_style: "line",
-        scroller_position: "left",
-        zoomer_pane_position: "right"
+        moveByClick: true,
+        scrollItems: 4,
+        choosedThumbBorderColor: "#ff3d00",
+        scrollerButtonStyle: "line",
+        scrollerPosition: "left",
+        zoomerPanePosition: "right"
       }
     };
   },
   computed: {
-    base_container_div: function() {
+    baseContainerDiv: function() {
       return document.querySelector(
         "." + this.options.namespace + "-base-container"
       );
     },
-    pane_container_id: function() {
+    paneContainerId: function() {
       return this.options.namespace + "-pane-container";
     },
-    preview_img: function() {
+    previewImg: function() {
       return "." + this.options.namespace + "-base-container .preview-box";
     },
-    scroller_icon_first: function() {
-      if (["top", "bottom"].includes(this.options.scroller_position)) {
-        if (this.options.scroller_button_style === 'line') {
+    scrollerIconFirst: function() {
+      if (["top", "bottom"].includes(this.options.scrollerPosition)) {
+        if (this.options.scrollerButtonStyle === 'line') {
           return LineLeft;
         } else {
           return FillLeft;
         }
-      } else if (["left", "right"].includes(this.options.scroller_position)) {
-        if (this.options.scroller_button_style === 'line') {
+      } else if (["left", "right"].includes(this.options.scrollerPosition)) {
+        if (this.options.scrollerButtonStyle === 'line') {
           return LineUp;
         } else {
           return FillUp;
         }
       }
     },
-    scroller_icon_second: function() {
-      if (["top", "bottom"].includes(this.options.scroller_position)) {
-        if (this.options.scroller_button_style === 'line') {
+    scrollerIconSecond: function() {
+      if (["top", "bottom"].includes(this.options.scrollerPosition)) {
+        if (this.options.scrollerButtonStyle === 'line') {
           return LineRight;
         } else {
           return FillRight;
         }
-      } else if (["left", "right"].includes(this.options.scroller_position)) {
-        if (this.options.scroller_button_style === 'line') {
+      } else if (["left", "right"].includes(this.options.scrollerPosition)) {
+        if (this.options.scrollerButtonStyle === 'line') {
           return LineDown;
         } else {
           return FillDown;
@@ -158,53 +158,53 @@ export default {
   mounted() {
     if (
       !["left", "right", "top", "bottom"].includes(
-        this.options.scroller_position
+        this.options.scrollerPosition
       )
     ) {
-      throw "scroller_position is invalid";
+      throw "scrollerPosition is invalid";
     }
-    if (!["fill", "line"].includes(this.options.scroller_button_style)) {
-      throw "scroller_button_style is invalid";
+    if (!["fill", "line"].includes(this.options.scrollerButtonStyle)) {
+      throw "scrollerButtonStyle is invalid";
     }
-    if (!["left", "right"].includes(this.options.zoomer_pane_position)) {
-      throw "zoomer_pane_position is invalid";
+    if (!["left", "right"].includes(this.options.zoomerPanePosition)) {
+      throw "zoomerPanePosition is invalid";
     }
     this.$nextTick(() => {
-      this[actionName(this.options.scroller_position)]();
+      this[actionName(this.options.scrollerPosition)]();
       this.options.injectBaseStyles = true;
       if (this.options.pane === "container-round") {
         this.options.inlinePane = true;
       } else {
         this.options.inlinePane = false;
         this.options.paneContainer = document.getElementById(
-          this.pane_container_id
+          this.paneContainerId
         );
         let rect = document
           .querySelector("." + this.options.namespace + "-base-container")
           .getBoundingClientRect();
         document
-          .getElementById(this.pane_container_id)
+          .getElementById(this.paneContainerId)
           .setAttribute(
             "style",
             getCaculatedPanePosition(
               this.options.pane,
               rect,
-              this.options.zoomer_pane_position
+              this.options.zoomerPanePosition
             )
           );
       }
       this.drift = new Drift(
-        document.querySelector(this.preview_img),
+        document.querySelector(this.previewImg),
         this.options
       );
     });
   },
   watch: {
     choosedThumb: function(thumb) {
-      let matchNormalImg = this.normal_size.find(img => {
+      let matchNormalImg = this.normalSize.find(img => {
         return img.id === thumb.id;
       });
-      let matchLargeImg = this.large_size.find(img => {
+      let matchLargeImg = this.largeSize.find(img => {
         return img.id === thumb.id;
       });
       this.previewLargeImg = Object.assign({}, matchLargeImg);
@@ -223,16 +223,16 @@ export default {
       }
     }
 
-    if (this.normal_size.length === 0) {
+    if (this.normalSize.length === 0) {
       throw "Product Zoomer Need Normal Size Image At Least!!!";
     }
     if (this.thumbs.length === 0) {
-      this.thumbs = Object.assign([], this.normal_size);
+      this.thumbs = Object.assign([], this.normalSize);
     } else {
       this.choosedThumb = this.thumbs[0];
     }
-    if (this.large_size.length === 0) {
-      this.large_size = Object.assign([], this.normal_size);
+    if (this.largeSize.length === 0) {
+      this.largeSize = Object.assign([], this.normalSize);
     }
     if (Object.keys(this.baseZoomerOptions).length > 0) {
       for (const key in this.baseZoomerOptions) {
@@ -266,7 +266,7 @@ export default {
     chooseThumb(thumb, event) {
       let eventType = event.type;
       if (eventType === "mouseover") {
-        if (this.options.move_by_click !== true) {
+        if (this.options.moveByClick !== true) {
           this.choosedThumb = thumb;
         }
       } else {
@@ -275,7 +275,7 @@ export default {
     },
     scrollerAtBottom() {
       let scrollerItemsCount =
-        parseInt(this.baseZoomerOptions.scroll_items) + 2;
+        parseInt(this.baseZoomerOptions.scrollItems) + 2;
       let previewImg = document.querySelector(
         "." + this.options.namespace + "-base-container " + ".preview-box"
       );
@@ -314,7 +314,7 @@ export default {
     },
     scrollerAtTop() {
       let scrollerItemsCount =
-        parseInt(this.baseZoomerOptions.scroll_items) + 2;
+        parseInt(this.baseZoomerOptions.scrollItems) + 2;
       let previewImg = document.querySelector(
         "." + this.options.namespace + "-base-container " + ".preview-box"
       );
@@ -353,7 +353,7 @@ export default {
     },
     scrollerAtRight() {
       let scrollerItemsCount =
-        parseInt(this.baseZoomerOptions.scroll_items) + 2;
+        parseInt(this.baseZoomerOptions.scrollItems) + 2;
       let previewImg = document.querySelector(
         "." + this.options.namespace + "-base-container " + ".preview-box"
       );
@@ -390,7 +390,7 @@ export default {
     },
     scrollerAtLeft() {
       let scrollerItemsCount =
-        parseInt(this.baseZoomerOptions.scroll_items) + 2;
+        parseInt(this.baseZoomerOptions.scrollItems) + 2;
       let previewImg = document.querySelector(
         "." + this.options.namespace + "-base-container " + ".preview-box"
       );
